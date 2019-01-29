@@ -47,6 +47,7 @@ let pointer;
 let pointerPressed = false;
 let controlLine;
 let projectiles=[];
+let maxVelocity = 40;
 
 function setup() {
     pillar = new Graphics();
@@ -77,26 +78,33 @@ function setup() {
         console.log(player.x, player.y)
         pointerPressed = false;
         if(pointer.x != pointer.startX || pointer.y != pointer.startY)
-            releaseProjectile(player.x, player.y, 2, 0);
+            releaseProjectile(player.x, player.y, pointer.startX, pointer.startY, pointer.x, pointer.y);
     };
 
     pointer.tap = () => console.log("The pointer was tapped");
 
-    function releaseProjectile (x, y, vx, vy) {
+    function releaseProjectile (x, y, controlLineStartX, controlLineStartY, controlLineEndX, controlLineEndY) {
         console.log("projectile.released");
+        //calculate the angle between the control line and the X axis in radians
+        let axisAngle = angle(controlLineStartX, controlLineStartY, controlLineEndX, controlLineEndY);
+        let power = calculatePower(controlLineStartX, controlLineStartY, controlLineEndX, controlLineEndY);
+
+        console.log(axisAngle);
         let projectile = new Graphics();
+        projectile.t = 0;
         projectile.x = x;
         projectile.y = y;
-        projectile.vx = vx;
-        projectile.vy = vy;
+        projectile.vx = power * maxVelocity * Math.cos(axisAngle);
+        projectile.vy = power * maxVelocity * Math.sin(axisAngle);
         projectile.radius = 10;
         projectile.beginFill(0x9966FF);
         projectile.drawCircle(0, 0, projectile.radius);
-        projectile.endFill();  
+        projectile.endFill(); 
+        
+         
         projectiles.push(projectile);
         app.stage.addChild(projectile);
-        console.log(projectiles)
-        console.log(app.stage)
+        
     }
 
     app.stage.addChild(pillar);
@@ -123,12 +131,12 @@ function play(delta) {
     }
 
     projectiles.forEach(function(projectile, index) {
-        let A = 45;
-        let v = 40
-        let h = 480;
+        projectile.t += 0.0167;
         projectile.x += projectile.vx;
-        projectile.y = h - 4.9 * Math.pow((projectile.x / (v*Math.cos(A * Math.PI / 180))), 2) + Math.tan(A * Math.PI/180) * projectile.x
-        console.log(projectile.y);
+        projectile.vy = projectile.vy - 1 * 9.8 * projectile.t;
+        projectile.y = projectile.y - projectile.vy;
+        // projectile.y = projectile.startY - projectile.vy * projectile.t + 0.5 * 9.8 / 60 * Math.pow(projectile.t, 2) 
+        
         if(contain(projectile, width, height)) {
             projectile.clear();
             projectiles.splice(index, 1);

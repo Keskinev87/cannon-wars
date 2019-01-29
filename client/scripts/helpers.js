@@ -20,3 +20,24 @@ function contain(sprite, width, height) {
     return out;
   }
   
+
+  function angle(sx, sy, ex, ey) {
+    let dy = ey - sy;
+    let dx = ex - sx;
+    let theta = Math.atan2(dy, dx); // range (-PI, PI]
+    // theta *= 180 / Math.PI; // rads to degs, range (-180, 180]
+    //if (theta < 0) theta = 360 + theta; // range [0, 360)
+    theta = Math.PI - theta;
+    return theta;
+  }
+
+  function calculatePower(sx, sy, ex, ey ) {
+    let dx = Math.abs(ex - sx);
+    let dy = Math.abs(ey - sy);
+    let controlLineLength = Math.sqrt(dx * dx + dy * dy);
+    let powerPercent = 0.1;
+    
+    controlLineLength >= 200 ? powerPercent = 1 : powerPercent = controlLineLength / 200;
+
+    return powerPercent;
+  }
