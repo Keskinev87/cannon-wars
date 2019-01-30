@@ -6,30 +6,28 @@ if(!PIXI.utils.isWebGLSupported()){
 
 PIXI.utils.sayHello(type)
 
-let Application = PIXI.Application,
-loader = PIXI.loader,
-resources = PIXI.loader.resources,
-Sprite = PIXI.Sprite;
-Graphics = PIXI.Graphics;
-
+serverCom();
+let Application = PIXI.Application;
+let loader = PIXI.loader;
+let resources = PIXI.loader.resources;
+let Sprite = PIXI.Sprite;
+let Graphics = PIXI.Graphics;
 let app = new Application({ 
         antialias: true,    // default: false
         transparent: false, // default: false
         resolution: 1       // default: 1
     }
 );
-
 app.renderer.backgroundColor = 0x061639;
 // app.renderer.view.style.position = "absolute";
 // app.renderer.view.style.display = "block";
 // app.renderer.autoResize = true;
 // app.renderer.resize(window.innerWidth, window.innerHeight);
-
 loader
     .add("images/survivor.png")
     .on("progress", loadProgressHandler)
     .load(setup);
-  
+
 function loadProgressHandler() {
     console.log("loading"); 
     console.log("progress: " + loader.progress + "%"); 
@@ -37,11 +35,13 @@ function loadProgressHandler() {
 
 document.body.appendChild(app.view);
 
-let pillar;
-let player; 
+
+let pillar = player.pillar;
+let playerCannon = player.playerCannon; 
 let state;
 let width = app.renderer.width;
 let height = app.renderer.height;
+player.randomizeCoords(width, height); //the player is initialized in the sockets. 
 let t = new Tink(PIXI, app.renderer.view); //tink library
 let pointer;
 let pointerPressed = false;
@@ -51,21 +51,21 @@ let maxVelocity = 40;
 
 function setup() {
     pillar = new Graphics();
-    player = new Graphics();
+    playerCannon = new Graphics();
     controlLine = new Graphics();
     pointer = t.makePointer();
 
     //draw the pillar
     pillar.beginFill(0x66CCFF);
-    pillar.drawRect(0.1 * width, 0.8 * height, 0.1 * width, 0.2* height);
+    pillar.drawRect(player.pillarCoords.x, player.pillarCoords.y, 0.05 * width, height - player.pillarCoords.y);
     pillar.endFill();
     
 
-    player.beginFill(0x9966FF);
-    player.drawCircle(0, 0, 0.05 * width);
-    player.endFill();
-    player.x = 0.15 * width;
-    player.y = 0.8*height - 0.05 * width;
+    playerCannon.beginFill(0x9966FF);
+    playerCannon.drawCircle(0, 0, 0.05 * width);
+    playerCannon.endFill();
+    playerCannon.x = player.cannonCoords.x;
+    playerCannon.y = player.cannonCoords.y;
 
     pointer.press = () => {
         console.log(pointer.x, pointer.y);
@@ -75,10 +75,10 @@ function setup() {
     };
 
     pointer.release = () => {
-        console.log(player.x, player.y)
+        console.log(playerCannon.x, playerCannon.y)
         pointerPressed = false;
         if(pointer.x != pointer.startX || pointer.y != pointer.startY)
-            releaseProjectile(player.x, player.y, pointer.startX, pointer.startY, pointer.x, pointer.y);
+            releaseProjectile(playerCannon.x, playerCannon.y, pointer.startX, pointer.startY, pointer.x, pointer.y);
     };
 
     pointer.tap = () => console.log("The pointer was tapped");
@@ -108,7 +108,7 @@ function setup() {
     }
 
     app.stage.addChild(pillar);
-    app.stage.addChild(player);
+    app.stage.addChild(playerCannon);
     app.stage.addChild(controlLine);
 
     state = play;

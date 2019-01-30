@@ -18,10 +18,10 @@ function contain(sprite, width, height) {
     }
     //Return the `out` value
     return out;
-  }
+}
   
 
-  function angle(sx, sy, ex, ey) {
+function angle(sx, sy, ex, ey) {
     let dy = ey - sy;
     let dx = ex - sx;
     let theta = Math.atan2(dy, dx); // range (-PI, PI]
@@ -29,9 +29,9 @@ function contain(sprite, width, height) {
     //if (theta < 0) theta = 360 + theta; // range [0, 360)
     theta = Math.PI - theta;
     return theta;
-  }
+}
 
-  function calculatePower(sx, sy, ex, ey ) {
+function calculatePower(sx, sy, ex, ey ) {
     let dx = Math.abs(ex - sx);
     let dy = Math.abs(ey - sy);
     let controlLineLength = Math.sqrt(dx * dx + dy * dy);
@@ -40,4 +40,8 @@ function contain(sprite, width, height) {
     controlLineLength >= 200 ? powerPercent = 1 : powerPercent = controlLineLength / 200;
 
     return powerPercent;
-  }
+}
+
+function checkForColisions(projectile, player){
+
+}
